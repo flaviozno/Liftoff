@@ -5,18 +5,20 @@ import {
 import {styles} from './styles'
 
 import { Avatar } from '../Avatar'
+import { useAuth } from "../../hooks/auth";
 
 export function Profile(){
+    const { user } = useAuth()
     return(
         <View style={styles.container}>
-            <Avatar urlImage="https://github.com/flaviozno.png"/>
+            <Avatar urlImage={user.avatar}/>
             <View>
                 <View style={styles.user}>
                     <Text style={styles.greeting}>
                         olá
                     </Text>
                     <Text style={styles.username}>
-                        Flávio
+                        {user.firstName}
                     </Text>
                 </View>
                 <Text style={styles.message}>

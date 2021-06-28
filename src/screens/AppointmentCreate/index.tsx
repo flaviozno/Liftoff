@@ -27,9 +27,17 @@ export function AppointmentCreate() {
         setOpenGuildsModal(true)
     }
 
+    function handleCloseGuilds(){
+        setOpenGuildsModal(false)
+    }
+
     function handleGuildSelect(guildSelect: GuildProps){
         setGuild(guildSelect)
         setOpenGuildsModal(false)
+    }
+
+    function handleCategorySelect(categoryId: string){
+        setCategory(categoryId)
     }
 
     return (
@@ -37,8 +45,8 @@ export function AppointmentCreate() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
             style={styles.container} 
         >
-            <ScrollView>
-                <Background>
+            <Background>
+                <ScrollView>
                     <Header 
                         title="Agendar Partida"
                     />
@@ -47,7 +55,7 @@ export function AppointmentCreate() {
                     </Text>
                     <CategorySelect
                         hasCheckBox
-                        setCategory={setCategory}
+                        setCategory={handleCategorySelect}
                         categorySelected={category}
                     />
                     <View style={styles.form}>
@@ -115,9 +123,9 @@ export function AppointmentCreate() {
                             <Button title="Agendar"/>
                         </View>
                     </View>
-                </Background>
-            </ScrollView>
-            <ModalView visible={openGuildsModal}>
+                </ScrollView>
+            </Background>
+            <ModalView visible={openGuildsModal} closeModal={handleCloseGuilds}>
                 <Guilds handleGuildSelect={handleGuildSelect}/>
             </ModalView>
         </KeyboardAvoidingView>
