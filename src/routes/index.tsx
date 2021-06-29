@@ -1,7 +1,7 @@
 import React from "react";
 import { NavigationContainer } from '@react-navigation/native'
 
-import { AuthRouter } from './auth.routes'
+import { AppRouter } from './app.routes'
 import { useAuth } from "../hooks/auth";
 import { SignIn } from '../screens/SignIn'
 //importante para quando precisar fazer um goBack
@@ -11,7 +11,7 @@ export function Routes(){
 
     return(
         <NavigationContainer>
-            {user.id ? <AuthRouter /> : <SignIn /> }
+            {user.id ? <AppRouter /> : <SignIn /> }
         </NavigationContainer>
     )
 }

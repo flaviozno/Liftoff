@@ -1,59 +1,57 @@
-import React, {useState} from "react";
+import React, {useState, useCallback } from "react";
 import { View, FlatList } from 'react-native'
 import { styles } from "./styles";
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useFocusEffect } from '@react-navigation/native'
+import  AsyncStorage from '@react-native-async-storage/async-storage'
+
 
 import { Profile } from '../../components/Profile'
 import { ButtonAdd} from '../../components/ButtonAdd'
 import { CategorySelect } from "../../components/CategorySelect";
 import { ListHeader } from "../../components/ListHeader";
-import { Appointment } from '../../components/Appointment';
+import { Appointment, AppointmentProps } from '../../components/Appointment';
 import { ListDivider } from "../../components/ListDivider";
 import { Background } from '../../components/Background'
+import { COLLECTION_APPOINTMENTS } from "../../configs/database";
+import { Load } from "../../components/Load";
 
 
 //FlatList é para muitos elementos e reder aos poucos, já a scrollView é para poucos e é mais performatica
 export function Home(){
     const [category, setCategory] = useState('')
-    const navigation = useNavigation();
+    const [loading, setLoading] = useState(true)
+    const [appointments, setAppointments] = useState<AppointmentProps[]>([])
 
-    const appointment = [
-        {
-            id: '1',
-            guild: {
-                id: '1',
-                name: 'Lendários',
-                icon: null,
-                owner: true
-            },
-            category: '1',
-            date: '24/06 às 18:40h',
-            description: 'É hoje que o manolo pega m7 de veigar!'
-        },
-        {
-            id: '2',
-            guild: {
-                id: '1',
-                name: 'Lendários',
-                icon: null,
-                owner: true
-            },
-            category: '1',
-            date: '24/06 às 18:40h',
-            description: 'É hoje que o manolo pega m7 de veigar!'
-        }
-    ]
+    const navigation = useNavigation();
+    
 
     function handleCategorySelect(categoryId: string){
         categoryId === category ? setCategory('') : setCategory(categoryId)
     }
-    function handleAppointmentDetails(){
-        navigation.navigate('AppointmentDetails')
+    function handleAppointmentDetails(guildSelected: AppointmentProps){
+        navigation.navigate('AppointmentDetails', { guildSelected })
     }
     
     function handleAppointmentCreate(){
         navigation.navigate('AppointmentCreate')
     }
+
+    async function loadAppointments(){
+        const resposnse = await AsyncStorage.getItem(COLLECTION_APPOINTMENTS)
+        const storage: AppointmentProps[] = resposnse ? JSON.parse(resposnse) : []
+
+        if(category){
+            setAppointments(storage.filter(item => item.category === category))
+        }else{
+            setAppointments(storage)
+        }
+
+        setLoading(false)
+    }
+
+    useFocusEffect(useCallback(()=> {
+        loadAppointments()
+    },[category]))
     return(
     <Background>
         <View style={styles.header}>
@@ -66,25 +64,30 @@ export function Home(){
            setCategory={handleCategorySelect}
            />
 
-            <ListHeader 
-                title="Partidas agendadas"
-                subtitle="Total 6"
-            />
+           { 
+                loading ? <Load /> :
+                <>
+                    <ListHeader 
+                        title="Partidas agendadas"
+                        subtitle={`Total ${appointments.length}`}
+                    />
 
-            <FlatList
-                data={appointment}
-                keyExtractor={item => item.id}
-                renderItem={({ item }) => (
-                <Appointment 
-                    data={item}
-                    onPress={handleAppointmentDetails}
-                />
-                )}
-                ItemSeparatorComponent={() => <ListDivider />}
-                contentContainerStyle={{paddingBottom: 69}}
-                style={styles.matches}
-                showsHorizontalScrollIndicator={false}
+                    <FlatList
+                        data={appointments}
+                        keyExtractor={item => item.id}
+                        renderItem={({ item }) => (
+                        <Appointment 
+                            data={item}
+                            onPress={() => handleAppointmentDetails(item)}
+                        />
+                        )}
+                        ItemSeparatorComponent={() => <ListDivider />}
+                        contentContainerStyle={{paddingBottom: 69}}
+                        style={styles.matches}
+                        showsHorizontalScrollIndicator={false}
                 /> 
+                </>
+                }
            
     </Background>
     )

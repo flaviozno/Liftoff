@@ -9,7 +9,7 @@ import { AppointmentCreate } from '../screens/AppointmentCreate';
 
 const { Navigator , Screen } = createStackNavigator();
 
-export function AuthRouter(){
+export function AppRouter(){
     return(
         <Navigator
             headerMode="none"
